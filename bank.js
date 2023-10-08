@@ -1,12 +1,17 @@
 const readXlsxFile = require('read-excel-file/node')
 var fs = require('file-system')
 
-readXlsxFile(`./data/${process.argv[2]}.xlsx`).then((rows) => {
-  fs.writeFile(`./bank/${process.argv[2]}.json`, JSON.stringify(rows), (err) => console.log(!err ? 'json oluşturma başarılı' : 'json oluşturma başarısız'))
-}).then(() => Bank())
+// Çalışmaya başlarken bu iki parametre girilmeli
+const fileType = 'bank' // sektör klasör adı
+const ozkaynakNo = 8 // Toplam Özkaynağın okunduğu sütun numarası
+// Parametre END
 
-const Bank = () => {
-  fs.readFile(`./bank/${process.argv[2]}.json`, 'utf-8', (err, data) => {
+readXlsxFile(`./data/${fileType}/${process.argv[2]}.xlsx`).then((rows) => {
+  fs.writeFile(`./output/${fileType}/${process.argv[2]}.json`, JSON.stringify(rows), (err) => console.log(!err ? 'json oluşturma başarılı' : 'json oluşturma başarısız'))
+}).then(() => Sector())
+
+const Sector = () => {
+  fs.readFile(`./output/${fileType}/${process.argv[2]}.json`, 'utf-8', (err, data) => {
     if (err) {
       return
     }
@@ -27,8 +32,8 @@ const Bank = () => {
         parabirimi = Number( row[1].split(' ')[0].split('.').join('') )
       }
       if (row.join().includes('ÖZKAYNAKLAR')) {
-        const toplam = row[8] != null ? toNumber(row[8]) : 0
-        ozkaynak = toplam
+        ozkaynak = row[ozkaynakNo] != null ? toNumber(row[ozkaynakNo]) : 0
+        isNaN(parabirimi) && (parabirimi = 1)
       }
     })
 

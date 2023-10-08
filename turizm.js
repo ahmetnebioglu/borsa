@@ -1,12 +1,17 @@
 const readXlsxFile = require('read-excel-file/node')
 var fs = require('file-system')
 
-readXlsxFile(`./data/gida/${process.argv[2]}.xlsx`).then((rows) => {
-  fs.writeFile(`./output/gida/${process.argv[2]}.json`, JSON.stringify(rows), (err) => console.log(!err ? 'json oluşturma başarılı' : 'json oluşturma başarısız'))
+// Çalışmaya başlarken bu iki parametre girilmeli
+const fileType = 'turizm' // sektör klasör adı
+const ozkaynakNo = 6 // Toplam Özkaynağın okunduğu sütun numarası
+// Parametre END
+
+readXlsxFile(`./data/${fileType}/${process.argv[2]}.xlsx`).then((rows) => {
+  fs.writeFile(`./output/${fileType}/${process.argv[2]}.json`, JSON.stringify(rows), (err) => console.log(!err ? 'json oluşturma başarılı' : 'json oluşturma başarısız'))
 }).then(() => Sector())
 
 const Sector = () => {
-  fs.readFile(`./output/gida/${process.argv[2]}.json`, 'utf-8', (err, data) => {
+  fs.readFile(`./output/${fileType}/${process.argv[2]}.json`, 'utf-8', (err, data) => {
     if (err) {
       return
     }
@@ -25,11 +30,10 @@ const Sector = () => {
       if (row.join().includes('Sunum Para Birimi')) {
         console.log('sunum para birimi', row[1])
         parabirimi = Number( row[1].split(' ')[0].split('.').join('') )
-        isNaN(parabirimi) && (parabirimi = 1)
       }
-
-      if (row.join().includes('TOPLAM ÖZKAYNAKLAR')) {
-        ozkaynak = row[6] != null ? toNumber(row[6]) : 0
+      if (row.join().includes('ÖZKAYNAKLAR')) {
+        ozkaynak = row[ozkaynakNo] != null ? toNumber(row[ozkaynakNo]) : 0
+        isNaN(parabirimi) && (parabirimi = 1)
       }
     })
 
